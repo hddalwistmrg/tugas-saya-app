@@ -3,600 +3,332 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tugasku</title>
+    <title>Tugasku - Modern Task Manager</title>
+    
+    <!-- Google Fonts: Poppins for modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (via CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind Config to match Poppins font -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Poppins', 'sans-serif'],
+            },
+            colors: {
+              brand: {
+                50: '#eef2ff',
+                100: '#e0e7ff',
+                500: '#6366f1',
+                600: '#4f46e5',
+                700: '#4338ca',
+              }
+            }
+          }
+        }
+      }
+    </script>
+
     <style>
-      :root {
-        --paper: #f7f4ee;
-        --ink: #20241f;
-        --muted: #847d6d;
-        --line: #e4ddcc;
-        --card: #ffffff;
-        --user: #3f7d5c;
-        --user-dark: #2c5a41;
-        --user-soft: #e8f1ea;
-        --admin: #4a4d86;
-        --admin-dark: #34366a;
-        --admin-soft: #eaeaf5;
-        --danger: #b3432b;
-        --danger-soft: #f6e5df;
-        --urgent: #b3432b;
-        --important: #c1832c;
-        --normal: #5b8a6b;
-      }
-      * {
-        box-sizing: border-box;
-      }
+      /* Custom utility classes */
       body {
-        margin: 0;
-        font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        background: var(--paper);
-        color: var(--ink);
-        min-height: 100vh;
+        background-color: #f8fafc;
       }
-      h1,
-      h2,
-      h3 {
-        font-family: Georgia, "Iowan Old Style", serif;
-        margin: 0;
-      }
-      button {
-        font-family: inherit;
-        cursor: pointer;
-        border: none;
-      }
-      .hidden {
+      .hidden-important {
         display: none !important;
       }
-      input,
-      select,
-      textarea {
-        font-family: inherit;
+      
+      /* Smooth transitions */
+      .task-card {
+        transition: all 0.2s ease-in-out;
+      }
+      .task-card:hover {
+        transform: translateY(-2px);
       }
 
-      /* ---------- Auth screen ---------- */
-      #auth-screen {
-        max-width: 380px;
-        margin: 64px auto;
-        padding: 0 20px;
-      }
-      #auth-screen h1 {
-        font-size: 1.9rem;
-        letter-spacing: -0.01em;
-      }
-      #auth-screen p.tag {
-        color: var(--muted);
-        margin: 6px 0 26px;
-        font-size: 0.95rem;
-      }
-      .field {
-        margin-bottom: 14px;
-      }
-      .field label {
-        display: block;
-        font-size: 0.8rem;
-        color: var(--muted);
-        margin-bottom: 5px;
-      }
-      .field input {
-        width: 100%;
-        padding: 11px 12px;
-        border: 1px solid var(--line);
-        border-radius: 9px;
-        font-size: 0.95rem;
-        background: white;
-      }
-      .field input:focus {
-        outline: 2px solid var(--user);
-        outline-offset: 1px;
-      }
-      #auth-error {
-        color: var(--danger);
-        font-size: 0.85rem;
-        min-height: 18px;
-        margin-bottom: 8px;
-      }
-      .btn-block {
-        width: 100%;
-        background: var(--user);
-        color: white;
-        padding: 12px;
-        border-radius: 9px;
-        font-size: 0.95rem;
-        font-weight: 600;
-      }
-      .btn-block:hover {
-        background: var(--user-dark);
-      }
-      #auth-toggle {
-        margin-top: 16px;
-        font-size: 0.88rem;
-        color: var(--muted);
-      }
-      .btn-link {
-        background: none;
-        color: var(--user-dark);
-        text-decoration: underline;
-        font-size: inherit;
-        padding: 0;
+      /* Custom Checkbox */
+      input[type="checkbox"] {
+        accent-color: #4f46e5;
+        width: 1.25rem;
+        height: 1.25rem;
+        cursor: pointer;
       }
 
-      /* ---------- Shared app chrome ---------- */
-      .wrap {
-        max-width: 640px;
-        margin: 0 auto;
-        padding: 22px 18px 90px;
-      }
-      header.top {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 20px;
-        gap: 12px;
-      }
-      header.top h1 {
-        font-size: 1.4rem;
-      }
-      .badge-role {
-        display: inline-block;
-        font-size: 0.68rem;
-        font-weight: 700;
-        letter-spacing: 0.03em;
-        padding: 2px 8px;
-        border-radius: 20px;
-        margin-left: 8px;
-        vertical-align: middle;
-      }
-      .badge-role.admin {
-        background: var(--admin-soft);
-        color: var(--admin-dark);
-      }
-      .badge-role.user {
-        background: var(--user-soft);
-        color: var(--user-dark);
-      }
-      .sub {
-        color: var(--muted);
-        font-size: 0.85rem;
-        margin-top: 2px;
-      }
-      .btn-ghost {
-        background: transparent;
-        color: var(--muted);
-        font-size: 0.85rem;
-        text-decoration: underline;
-        padding: 4px;
-      }
-
-      /* ---------- User: add-task card ---------- */
-      .card {
-        background: var(--card);
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        padding: 16px;
-        margin-bottom: 20px;
-      }
-      .card input[type="text"],
-      .card textarea,
-      .card select,
-      .card input[type="datetime-local"] {
-        width: 100%;
-        padding: 10px 11px;
-        border: 1px solid var(--line);
-        border-radius: 9px;
-        font-size: 0.92rem;
-        background: var(--paper);
-        margin-bottom: 9px;
-      }
-      .card textarea {
-        resize: vertical;
-        min-height: 52px;
-      }
-      .grid2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 9px;
-      }
-      .btn-add {
-        background: var(--user);
-        color: white;
-        padding: 10px;
-        border-radius: 9px;
-        font-weight: 600;
-        font-size: 0.92rem;
-        width: 100%;
-      }
-      .btn-add:hover {
-        background: var(--user-dark);
-      }
-
-      /* ---------- Stats strip ---------- */
-      .stats {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 18px;
-      }
-      .stat {
-        flex: 1;
-        background: var(--card);
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        padding: 12px 14px;
-      }
-      .stat .num {
-        font-size: 1.5rem;
-        font-family: Georgia, serif;
-      }
-      .stat .label {
-        font-size: 0.75rem;
-        color: var(--muted);
-      }
-
-      /* ---------- Tabs ---------- */
-      .tabs {
-        display: flex;
-        gap: 6px;
-        margin-bottom: 14px;
-        border-bottom: 1px solid var(--line);
-      }
-      .tab-btn {
-        background: none;
-        padding: 9px 4px;
-        margin-right: 16px;
-        font-size: 0.92rem;
-        color: var(--muted);
-        border-bottom: 2px solid transparent;
-      }
+      /* Active Tab Styling */
       .tab-btn.active {
-        color: var(--user-dark);
-        border-bottom-color: var(--user);
+        color: #4f46e5;
+        border-bottom-width: 2px;
+        border-bottom-color: #4f46e5;
         font-weight: 600;
       }
-
-      /* ---------- Task cards ---------- */
-      .task {
-        background: var(--card);
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        padding: 13px 14px;
-        margin-bottom: 10px;
-      }
-      .task.done {
-        opacity: 0.55;
-      }
-      .task-top {
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-      }
-      .task input[type="checkbox"] {
-        margin-top: 3px;
-        width: 18px;
-        height: 18px;
-        accent-color: var(--user);
-        flex-shrink: 0;
-      }
-      .task-body {
-        flex: 1;
-        min-width: 0;
-      }
-      .task-text {
-        font-size: 0.98rem;
-        word-break: break-word;
-      }
-      .task.done .task-text {
-        text-decoration: line-through;
-      }
-      .task-notes {
-        font-size: 0.85rem;
-        color: var(--muted);
-        margin-top: 4px;
-        white-space: pre-wrap;
-      }
-      .task-meta {
-        font-size: 0.78rem;
-        color: var(--muted);
-        margin-top: 6px;
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        align-items: center;
-      }
-      .task-meta.overdue {
-        color: var(--danger);
-        font-weight: 600;
-      }
-      .priority-pill {
-        font-size: 0.68rem;
-        font-weight: 700;
-        padding: 2px 8px;
-        border-radius: 20px;
-      }
-      .priority-pill.urgent {
-        background: #f6e2db;
-        color: var(--urgent);
-      }
-      .priority-pill.important {
-        background: #f7ecd8;
-        color: var(--important);
-      }
-      .priority-pill.normal {
-        background: #e6efe9;
-        color: var(--normal);
-      }
-      .task-actions {
-        display: flex;
-        gap: 6px;
-        margin-top: 8px;
-        justify-content: flex-end;
-      }
-      .icon-btn {
-        background: var(--paper);
-        border: 1px solid var(--line);
-        padding: 5px 11px;
-        border-radius: 7px;
-        font-size: 0.78rem;
-        color: var(--ink);
-      }
-      .icon-btn:hover {
-        background: var(--line);
-      }
-      .icon-btn.danger {
-        color: var(--danger);
-      }
-      .empty-state {
-        text-align: center;
-        color: var(--muted);
-        padding: 44px 10px;
-        font-size: 0.9rem;
-      }
-
-      /* ---------- Edit modal ---------- */
-      .modal-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(20, 20, 15, 0.4);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        z-index: 50;
-      }
-      .modal {
-        background: var(--card);
-        border-radius: 14px;
-        padding: 20px;
-        max-width: 420px;
-        width: 100%;
-      }
-      .modal h3 {
-        margin-bottom: 14px;
-      }
-      .modal-actions {
-        display: flex;
-        gap: 8px;
-        margin-top: 6px;
-      }
-      .modal-actions .icon-btn {
-        flex: 1;
-        text-align: center;
-        padding: 9px;
-      }
-
-      /* ---------- Admin ---------- */
-      #app-admin header.top h1 {
-        color: var(--admin-dark);
-      }
-      .admin-stat .num {
-        color: var(--admin-dark);
-      }
-      table.users {
-        width: 100%;
-        border-collapse: collapse;
-        background: var(--card);
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        overflow: hidden;
-        font-size: 0.85rem;
-      }
-      table.users th {
-        text-align: left;
-        background: var(--admin-soft);
-        color: var(--admin-dark);
-        padding: 9px 10px;
-        font-size: 0.72rem;
-        letter-spacing: 0.02em;
-      }
-      table.users td {
-        padding: 9px 10px;
-        border-top: 1px solid var(--line);
-        vertical-align: top;
-      }
-      .status-pill {
-        font-size: 0.68rem;
-        font-weight: 700;
-        padding: 2px 8px;
-        border-radius: 20px;
-      }
-      .status-pill.active {
-        background: var(--user-soft);
-        color: var(--user-dark);
-      }
-      .status-pill.disabled {
-        background: var(--danger-soft);
-        color: var(--danger);
-      }
-      .table-wrap {
-        overflow-x: auto;
-      }
-      #app-user,
-      #app-admin {
+      
+      /* Hide apps initially */
+      #app-user, #app-admin {
         display: none;
       }
     </style>
   </head>
-  <body>
-    <!-- ===================== AUTH ===================== -->
-    <div id="auth-screen">
-      <h1>Tugasku</h1>
-      <p class="tag" id="auth-tagline">
-        Masuk untuk mengelola tugas dan deadline Anda.
-      </p>
-      <div id="auth-error"></div>
-      <div class="field">
-        <label>Email</label
-        ><input type="email" id="email-input" autocomplete="email" />
-      </div>
-      <div class="field">
-        <label>Kata sandi</label
-        ><input
-          type="password"
-          id="password-input"
-          autocomplete="current-password"
-        />
-      </div>
-      <button class="btn-block" id="auth-submit">Masuk</button>
-      <div id="auth-toggle">
-        Belum punya akun?
-        <button class="btn-link" id="auth-switch">Daftar di sini</button>
+  <body class="text-gray-800 antialiased min-h-screen">
+    
+    <!-- ===================== AUTH SCREEN ===================== -->
+    <div id="auth-screen" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-brand-50 to-blue-100">
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+        <div class="text-center mb-8">
+          <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-100 text-brand-600 mb-4">
+            <i class="fa-solid fa-check-double text-xl"></i>
+          </div>
+          <h1 class="text-2xl font-bold text-gray-900">Tugasku</h1>
+          <p class="text-sm text-gray-500 mt-2" id="auth-tagline">
+            Masuk untuk mengelola tugas dan deadline Anda.
+          </p>
+        </div>
+
+        <div id="auth-error" class="text-red-500 text-sm font-medium mb-4 text-center min-h-[20px]"></div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="email" id="email-input" autocomplete="email" 
+                   class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all"
+                   placeholder="nama@email.com" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Kata Sandi</label>
+            <input type="password" id="password-input" autocomplete="current-password" 
+                   class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all"
+                   placeholder="••••••••" />
+          </div>
+          
+          <button id="auth-submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-lg transition-colors shadow-md mt-2">
+            Masuk
+          </button>
+        </div>
+
+        <div class="mt-6 text-center text-sm text-gray-600" id="auth-toggle">
+          Belum punya akun? 
+          <button class="text-brand-600 font-semibold hover:underline" id="auth-switch">Daftar di sini</button>
+        </div>
       </div>
     </div>
 
     <!-- ===================== USER APP ===================== -->
     <div id="app-user">
-      <div class="wrap">
-        <header class="top">
-          <div>
-            <h1>Tugasku<span class="badge-role user">USER</span></h1>
-            <div class="sub" id="user-email-label"></div>
+      <div class="max-w-2xl mx-auto px-4 py-8 md:py-12 pb-24">
+        
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-brand-600">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                Tugasku
+                <span class="bg-blue-100 text-blue-700 text-xs px-2.5 py-0.5 rounded-full font-bold">USER</span>
+              </h1>
+              <div class="text-sm text-gray-500" id="user-email-label"></div>
+            </div>
           </div>
-          <button class="btn-ghost" id="logout-btn-user">Keluar</button>
+          <button id="logout-btn-user" class="text-gray-500 hover:text-red-500 text-sm font-medium transition-colors flex items-center gap-2">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar
+          </button>
         </header>
 
-        <div class="stats">
-          <div class="stat">
-            <div class="num" id="stat-aktif">0</div>
-            <div class="label">Tugas aktif</div>
+        <!-- Stats -->
+        <div class="grid grid-cols-3 gap-3 md:gap-4 mb-8">
+          <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center">
+            <div class="text-2xl font-bold text-brand-600" id="stat-aktif">0</div>
+            <div class="text-xs text-gray-500 font-medium uppercase tracking-wide mt-1">Aktif</div>
           </div>
-          <div class="stat">
-            <div class="num" id="stat-selesai">0</div>
-            <div class="label">Selesai</div>
+          <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center">
+            <div class="text-2xl font-bold text-green-500" id="stat-selesai">0</div>
+            <div class="text-xs text-gray-500 font-medium uppercase tracking-wide mt-1">Selesai</div>
           </div>
-          <div class="stat">
-            <div class="num" id="stat-lewat">0</div>
-            <div class="label">Lewat deadline</div>
+          <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center">
+            <div class="text-2xl font-bold text-red-500" id="stat-lewat">0</div>
+            <div class="text-xs text-gray-500 font-medium uppercase tracking-wide mt-1">Terlewat</div>
           </div>
         </div>
 
-        <div class="card">
-          <input type="text" id="new-task-text" placeholder="Nama tugas" />
-          <textarea
-            id="new-task-notes"
-            placeholder="Catatan (opsional)"
-          ></textarea>
-          <div class="grid2">
-            <select id="new-task-priority">
-              <option value="urgent">Sangat penting</option>
-              <option value="important" selected>Penting</option>
-              <option value="normal">Biasa</option>
-            </select>
-            <input type="datetime-local" id="new-task-deadline" />
+        <!-- Add Task Card -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 mb-8">
+          <h2 class="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">Buat Tugas Baru</h2>
+          <input type="text" id="new-task-text" placeholder="Apa yang ingin Anda kerjakan?" 
+                 class="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-brand-500 outline-none mb-3 bg-gray-50 text-sm" />
+          
+          <textarea id="new-task-notes" placeholder="Catatan tambahan (opsional)..." rows="2"
+                    class="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-brand-500 outline-none mb-3 bg-gray-50 text-sm resize-none"></textarea>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+            <div>
+              <label class="block text-xs text-gray-500 mb-1 ml-1">Prioritas</label>
+              <select id="new-task-priority" class="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-brand-500 outline-none bg-gray-50 text-sm appearance-none">
+                <option value="urgent">🔴 Sangat penting</option>
+                <option value="important" selected>🟠 Penting</option>
+                <option value="normal">🟢 Biasa</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 mb-1 ml-1">Tenggat Waktu</label>
+              <input type="datetime-local" id="new-task-deadline" 
+                     class="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-brand-500 outline-none bg-gray-50 text-sm" />
+            </div>
           </div>
-          <button class="btn-add" id="add-task-btn">Tambah tugas</button>
+          
+          <button id="add-task-btn" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
+            <i class="fa-solid fa-plus"></i> Tambah Tugas
+          </button>
         </div>
 
-        <div class="tabs">
-          <button class="tab-btn active" data-tab="aktif">Aktif</button>
-          <button class="tab-btn" data-tab="selesai">Selesai</button>
+        <!-- Tabs -->
+        <div class="flex gap-2 mb-4 border-b border-gray-200">
+          <button class="tab-btn active px-4 py-2 text-sm text-gray-500 transition-colors" data-tab="aktif">Tugas Aktif</button>
+          <button class="tab-btn px-4 py-2 text-sm text-gray-500 transition-colors" data-tab="selesai">Selesai</button>
         </div>
 
-        <div id="task-list"></div>
-        <div class="empty-state" id="empty-state">Belum ada tugas di sini.</div>
+        <!-- Task List -->
+        <div id="task-list" class="space-y-3"></div>
+        
+        <!-- Empty State -->
+        <div class="text-center py-12 px-4" id="empty-state">
+          <div class="w-20 h-20 mx-auto bg-gray-100 rounded-full flex items-center justify-center text-gray-300 mb-3">
+            <i class="fa-solid fa-clipboard-list text-3xl"></i>
+          </div>
+          <p class="text-gray-500 text-sm font-medium">Belum ada tugas di sini.</p>
+        </div>
       </div>
     </div>
 
     <!-- ===================== ADMIN APP ===================== -->
     <div id="app-admin">
-      <div class="wrap">
-        <header class="top">
-          <div>
-            <h1>Tugasku<span class="badge-role admin">ADMIN</span></h1>
-            <div class="sub" id="admin-email-label"></div>
+      <div class="max-w-4xl mx-auto px-4 py-8 md:py-12 pb-24">
+        
+        <!-- Admin Header -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                Tugasku
+                <span class="bg-purple-100 text-purple-700 text-xs px-2.5 py-0.5 rounded-full font-bold">ADMIN PANEL</span>
+              </h1>
+              <div class="text-sm text-gray-500" id="admin-email-label"></div>
+            </div>
           </div>
-          <button class="btn-ghost" id="logout-btn-admin">Keluar</button>
+          <button id="logout-btn-admin" class="text-gray-500 hover:text-red-500 text-sm font-medium transition-colors flex items-center gap-2">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar
+          </button>
         </header>
 
-        <div class="stats">
-          <div class="stat admin-stat">
-            <div class="num" id="admin-total-users">0</div>
-            <div class="label">Total pengguna</div>
+        <!-- Admin Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div class="bg-white p-5 rounded-2xl shadow-sm border border-l-4 border-l-purple-500 border-y-gray-100 border-r-gray-100 flex items-center justify-between">
+            <div>
+              <div class="text-3xl font-bold text-gray-800" id="admin-total-users">0</div>
+              <div class="text-xs text-gray-500 uppercase mt-1">Total Pengguna</div>
+            </div>
+            <i class="fa-solid fa-users text-gray-200 text-3xl"></i>
           </div>
-          <div class="stat admin-stat">
-            <div class="num" id="admin-total-tasks">0</div>
-            <div class="label">Total tugas dibuat</div>
+          <div class="bg-white p-5 rounded-2xl shadow-sm border border-l-4 border-l-brand-500 border-y-gray-100 border-r-gray-100 flex items-center justify-between">
+            <div>
+              <div class="text-3xl font-bold text-gray-800" id="admin-total-tasks">0</div>
+              <div class="text-xs text-gray-500 uppercase mt-1">Total Tugas</div>
+            </div>
+            <i class="fa-solid fa-list-check text-gray-200 text-3xl"></i>
           </div>
-          <div class="stat admin-stat">
-            <div class="num" id="admin-active-today">0</div>
-            <div class="label">Login 24 jam terakhir</div>
+          <div class="bg-white p-5 rounded-2xl shadow-sm border border-l-4 border-l-green-500 border-y-gray-100 border-r-gray-100 flex items-center justify-between">
+            <div>
+              <div class="text-3xl font-bold text-gray-800" id="admin-active-today">0</div>
+              <div class="text-xs text-gray-500 uppercase mt-1">Login Harian</div>
+            </div>
+            <i class="fa-solid fa-clock-rotate-left text-gray-200 text-3xl"></i>
           </div>
         </div>
 
-        <div class="card">
-          <input
-            type="text"
-            id="admin-search"
-            placeholder="Cari berdasarkan email..."
-          />
-        </div>
-
-        <div class="table-wrap">
-          <table class="users">
-            <thead>
-              <tr>
-                <th>Email</th>
-                <th>Daftar</th>
-                <th>Login terakhir</th>
-                <th>Status</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="user-table-body"></tbody>
-          </table>
+        <!-- Admin Search & Table -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="p-4 border-b border-gray-100 bg-gray-50">
+            <div class="relative max-w-sm">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+              <input type="text" id="admin-search" placeholder="Cari email pengguna..." 
+                     class="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-purple-500 outline-none text-sm" />
+            </div>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm whitespace-nowrap">
+              <thead>
+                <tr class="bg-white text-gray-500 text-xs uppercase tracking-wide border-b border-gray-100">
+                  <th class="py-3 px-4 font-semibold">Pengguna</th>
+                  <th class="py-3 px-4 font-semibold">Tgl Daftar</th>
+                  <th class="py-3 px-4 font-semibold">Login Terakhir</th>
+                  <th class="py-3 px-4 font-semibold">Status</th>
+                </tr>
+              </thead>
+              <tbody id="user-table-body" class="divide-y divide-gray-100">
+                <!-- User rows injected by JS -->
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- ===================== EDIT MODAL ===================== -->
-    <div class="modal-overlay hidden" id="edit-overlay">
-      <div class="modal">
-        <h3>Edit tugas</h3>
-        <input type="text" id="edit-text" placeholder="Nama tugas" />
-        <textarea id="edit-notes" placeholder="Catatan (opsional)"></textarea>
-        <div class="grid2">
-          <select id="edit-priority">
-            <option value="urgent">Sangat penting</option>
-            <option value="important">Penting</option>
-            <option value="normal">Biasa</option>
-          </select>
-          <input type="datetime-local" id="edit-deadline" />
+    <div id="edit-overlay" class="hidden-important fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform transition-all">
+        <div class="flex justify-between items-center mb-5">
+          <h3 class="text-lg font-bold text-gray-900">Edit Tugas</h3>
+          <button id="edit-cancel-x" class="text-gray-400 hover:text-gray-600">
+            <i class="fa-solid fa-xmark text-xl"></i>
+          </button>
         </div>
-        <div class="modal-actions">
-          <button class="icon-btn" id="edit-cancel">Batal</button>
-          <button
-            class="icon-btn"
-            id="edit-save"
-            style="
-              background: var(--user);
-              color: white;
-              border-color: var(--user);
-            "
-          >
-            Simpan
+        
+        <input type="text" id="edit-text" placeholder="Nama tugas" 
+               class="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-brand-500 outline-none mb-3 bg-gray-50 text-sm" />
+        
+        <textarea id="edit-notes" placeholder="Catatan (opsional)" rows="3"
+                  class="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-brand-500 outline-none mb-3 bg-gray-50 text-sm resize-none"></textarea>
+        
+        <div class="grid grid-cols-2 gap-3 mb-5">
+          <div>
+            <label class="block text-xs text-gray-500 mb-1 ml-1">Prioritas</label>
+            <select id="edit-priority" class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-brand-500 outline-none bg-gray-50 text-sm appearance-none">
+              <option value="urgent">🔴 Sangat penting</option>
+              <option value="important">🟠 Penting</option>
+              <option value="normal">🟢 Biasa</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1 ml-1">Tenggat</label>
+            <input type="datetime-local" id="edit-deadline" 
+                   class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-brand-500 outline-none bg-gray-50 text-sm" />
+          </div>
+        </div>
+        
+        <div class="flex gap-3">
+          <button id="edit-cancel" class="flex-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium py-2.5 rounded-lg transition-colors text-sm">
+            Batal
+          </button>
+          <button id="edit-save" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-medium py-2.5 rounded-lg transition-colors text-sm">
+            Simpan Perubahan
           </button>
         </div>
       </div>
     </div>
 
+    <!-- ===================== JAVASCRIPT ===================== -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
       import {
@@ -621,7 +353,7 @@
         serverTimestamp,
       } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-      // >>> GANTI DENGAN FIREBASE CONFIG ASLI ANDA <<<
+      // FIREBASE CONFIG ASLI ANDA (TIDAK DIUBAH)
       const firebaseConfig = {
         apiKey: "AIzaSyAa8NPTTgLAzHQkgvrzcFaNi2ZCpQ82kbE",
         authDomain: "tugas-saya-app.firebaseapp.com",
@@ -630,7 +362,7 @@
         messagingSenderId: "59386857102",
         appId: "1:59386857102:web:d059f302249ac428b92bdf",
       };
-      const APP_ID = "tugas-app-utama"; // harus sama dengan yang dipakai bot.js
+      const APP_ID = "tugas-app-utama"; 
 
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
@@ -657,13 +389,13 @@
 
       authSwitch.addEventListener("click", () => {
         isRegisterMode = !isRegisterMode;
-        authSubmit.textContent = isRegisterMode ? "Daftar" : "Masuk";
+        authSubmit.textContent = isRegisterMode ? "Daftar Sekarang" : "Masuk";
         authTagline.textContent = isRegisterMode
           ? "Buat akun baru untuk mulai mengelola tugas Anda."
           : "Masuk untuk mengelola tugas dan deadline Anda.";
         authToggle.innerHTML = isRegisterMode
-          ? 'Sudah punya akun? <button class="btn-link" id="auth-switch2">Masuk di sini</button>'
-          : 'Belum punya akun? <button class="btn-link" id="auth-switch2">Daftar di sini</button>';
+          ? 'Sudah punya akun? <button class="text-brand-600 font-semibold hover:underline" id="auth-switch2">Masuk di sini</button>'
+          : 'Belum punya akun? <button class="text-brand-600 font-semibold hover:underline" id="auth-switch2">Daftar di sini</button>';
         document
           .getElementById("auth-switch2")
           .addEventListener("click", () => authSwitch.click());
@@ -674,8 +406,15 @@
         const email = emailInput.value.trim();
         const password = passwordInput.value;
         authError.textContent = "";
+        
+        // Simple UI loading state
+        const originalText = authSubmit.textContent;
+        authSubmit.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Memproses...';
+        authSubmit.disabled = true;
+
         if (!email || !password) {
           authError.textContent = "Isi email dan kata sandi.";
+          resetAuthBtn(originalText);
           return;
         }
         try {
@@ -684,13 +423,18 @@
           else await signInWithEmailAndPassword(auth, email, password);
         } catch (err) {
           authError.textContent = translateAuthError(err.code);
+          resetAuthBtn(originalText);
         }
       });
+      
+      function resetAuthBtn(text) {
+          authSubmit.textContent = text;
+          authSubmit.disabled = false;
+      }
 
       function translateAuthError(code) {
         const map = {
-          "auth/email-already-in-use":
-            "Email ini sudah terdaftar. Coba masuk saja.",
+          "auth/email-already-in-use": "Email ini sudah terdaftar. Coba masuk saja.",
           "auth/invalid-email": "Format email tidak valid.",
           "auth/weak-password": "Kata sandi minimal 6 karakter.",
           "auth/user-not-found": "Akun tidak ditemukan. Coba daftar dulu.",
@@ -700,19 +444,15 @@
         return map[code] || "Terjadi kesalahan. Coba lagi.";
       }
 
-      document
-        .getElementById("logout-btn-user")
-        .addEventListener("click", () => signOut(auth));
-      document
-        .getElementById("logout-btn-admin")
-        .addEventListener("click", () => signOut(auth));
+      document.getElementById("logout-btn-user").addEventListener("click", () => signOut(auth));
+      document.getElementById("logout-btn-admin").addEventListener("click", () => signOut(auth));
 
       function showScreen(name) {
-        authScreen.classList.add("hidden");
+        authScreen.classList.add("hidden-important");
         appUser.style.display = "none";
         appAdmin.style.display = "none";
         if (name === "auth") {
-          authScreen.classList.remove("hidden");
+          authScreen.classList.remove("hidden-important");
           return;
         }
         if (name === "user") appUser.style.display = "block";
@@ -721,14 +461,8 @@
 
       // ---------- Auth state ----------
       onAuthStateChanged(auth, async (user) => {
-        if (unsubTasks) {
-          unsubTasks();
-          unsubTasks = null;
-        }
-        if (unsubUsers) {
-          unsubUsers();
-          unsubUsers = null;
-        }
+        if (unsubTasks) { unsubTasks(); unsubTasks = null; }
+        if (unsubUsers) { unsubUsers(); unsubUsers = null; }
 
         if (!user) {
           showScreen("auth");
@@ -774,41 +508,37 @@
         return collection(db, "artifacts", APP_ID, "users", uid, "tasks");
       }
 
-      document
-        .getElementById("add-task-btn")
-        .addEventListener("click", async () => {
-          const user = auth.currentUser;
-          if (!user) return;
-          const text = document.getElementById("new-task-text").value.trim();
-          if (!text) return;
-          const notes = document.getElementById("new-task-notes").value.trim();
-          const priority = document.getElementById("new-task-priority").value;
-          const deadlineVal =
-            document.getElementById("new-task-deadline").value;
-          const deadline = deadlineVal
-            ? new Date(deadlineVal).toISOString()
-            : null;
+      document.getElementById("add-task-btn").addEventListener("click", async () => {
+        const user = auth.currentUser;
+        if (!user) return;
+        const textInput = document.getElementById("new-task-text");
+        const text = textInput.value.trim();
+        if (!text) return;
+        
+        const notes = document.getElementById("new-task-notes").value.trim();
+        const priority = document.getElementById("new-task-priority").value;
+        const deadlineVal = document.getElementById("new-task-deadline").value;
+        const deadline = deadlineVal ? new Date(deadlineVal).toISOString() : null;
 
-          await addDoc(tasksCol(user.uid), {
-            text,
-            notes,
-            priority,
-            deadline,
-            completed: false,
-            notified: false,
-            createdAt: serverTimestamp(),
-          });
-          document.getElementById("new-task-text").value = "";
-          document.getElementById("new-task-notes").value = "";
-          document.getElementById("new-task-deadline").value = "";
+        await addDoc(tasksCol(user.uid), {
+          text,
+          notes,
+          priority,
+          deadline,
+          completed: false,
+          notified: false,
+          createdAt: serverTimestamp(),
         });
+        
+        textInput.value = "";
+        document.getElementById("new-task-notes").value = "";
+        document.getElementById("new-task-deadline").value = "";
+      });
 
       document.querySelectorAll(".tab-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
           currentTab = btn.dataset.tab;
-          document
-            .querySelectorAll(".tab-btn")
-            .forEach((b) => b.classList.remove("active"));
+          document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
           btn.classList.add("active");
           renderTasks();
         });
@@ -822,10 +552,10 @@
         });
       }
 
-      const priorityLabel = {
-        urgent: "Sangat penting",
-        important: "Penting",
-        normal: "Biasa",
+      const priorityStyle = {
+        urgent: { label: "Sangat penting", class: "bg-red-100 text-red-700" },
+        important: { label: "Penting", class: "bg-orange-100 text-orange-700" },
+        normal: { label: "Biasa", class: "bg-green-100 text-green-700" },
       };
       const priorityRank = { urgent: 0, important: 1, normal: 2 };
 
@@ -847,155 +577,122 @@
         });
 
         empty.style.display = filtered.length === 0 ? "block" : "none";
-        empty.textContent =
+        empty.querySelector('p').textContent =
           currentTab === "aktif"
-            ? "Belum ada tugas aktif."
+            ? "Belum ada tugas aktif. Mari buat satu!"
             : "Belum ada tugas yang selesai.";
 
-        document.getElementById("stat-aktif").textContent = cachedTasks.filter(
-          (t) => !t.completed,
-        ).length;
-        document.getElementById("stat-selesai").textContent =
-          cachedTasks.filter((t) => t.completed).length;
-        document.getElementById("stat-lewat").textContent = cachedTasks.filter(
-          (t) => !t.completed && t.deadline && new Date(t.deadline) < now,
-        ).length;
+        document.getElementById("stat-aktif").textContent = cachedTasks.filter((t) => !t.completed).length;
+        document.getElementById("stat-selesai").textContent = cachedTasks.filter((t) => t.completed).length;
+        document.getElementById("stat-lewat").textContent = cachedTasks.filter((t) => !t.completed && t.deadline && new Date(t.deadline) < now).length;
 
         filtered.forEach((task) => {
           const el = document.createElement("div");
-          el.className = "task" + (task.completed ? " done" : "");
-
-          const top = document.createElement("div");
-          top.className = "task-top";
+          // TAILWIND STYLING FOR TASK CARDS
+          el.className = "task-card bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex gap-3 " + (task.completed ? "opacity-60 bg-gray-50" : "");
 
           const cb = document.createElement("input");
           cb.type = "checkbox";
           cb.checked = !!task.completed;
+          cb.className = "mt-1 shrink-0";
           cb.addEventListener("change", () =>
-            updateDoc(
-              doc(
-                db,
-                "artifacts",
-                APP_ID,
-                "users",
-                auth.currentUser.uid,
-                "tasks",
-                task.id,
-              ),
-              { completed: cb.checked },
-            ),
+            updateDoc(doc(db, "artifacts", APP_ID, "users", auth.currentUser.uid, "tasks", task.id), { completed: cb.checked })
           );
+          el.appendChild(cb);
 
           const body = document.createElement("div");
-          body.className = "task-body";
+          body.className = "flex-1 min-w-0";
+
           const textEl = document.createElement("div");
-          textEl.className = "task-text";
+          textEl.className = "text-sm md:text-base font-medium break-words " + (task.completed ? "line-through text-gray-500" : "text-gray-800");
           textEl.textContent = task.text;
           body.appendChild(textEl);
 
           if (task.notes) {
             const n = document.createElement("div");
-            n.className = "task-notes";
+            n.className = "text-xs md:text-sm text-gray-500 mt-1 whitespace-pre-wrap";
             n.textContent = task.notes;
             body.appendChild(n);
           }
 
           const meta = document.createElement("div");
-          meta.className = "task-meta";
+          meta.className = "flex flex-wrap items-center gap-2 mt-3 text-xs";
+          
+          const pStyle = priorityStyle[task.priority] || priorityStyle.normal;
           const pill = document.createElement("span");
-          pill.className = "priority-pill " + task.priority;
-          pill.textContent = priorityLabel[task.priority] || "Biasa";
+          pill.className = `font-semibold px-2 py-0.5 rounded-full ${pStyle.class}`;
+          pill.textContent = pStyle.label;
           meta.appendChild(pill);
+
           if (task.deadline) {
             const d = new Date(task.deadline);
             const overdue = !task.completed && d < now;
             const dEl = document.createElement("span");
-            if (overdue) dEl.classList.add("overdue");
-            dEl.textContent =
+            dEl.className = "flex items-center gap-1 text-gray-500 " + (overdue ? "text-red-600 font-bold" : "");
+            dEl.innerHTML = `<i class="fa-regular fa-clock"></i> ` + 
               (overdue ? "Lewat · " : "") +
-              d.toLocaleString("id-ID", {
-                dateStyle: "medium",
-                timeStyle: "short",
-              });
+              d.toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
             meta.appendChild(dEl);
           }
           body.appendChild(meta);
+          el.appendChild(body);
 
           const actions = document.createElement("div");
-          actions.className = "task-actions";
+          actions.className = "flex flex-col md:flex-row gap-2 ml-2";
+          
           const editBtn = document.createElement("button");
-          editBtn.className = "icon-btn";
-          editBtn.textContent = "Edit";
+          editBtn.className = "w-8 h-8 rounded-lg text-gray-400 hover:text-brand-600 hover:bg-brand-50 transition-colors flex items-center justify-center";
+          editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i>';
           editBtn.addEventListener("click", () => openEditModal(task));
+          
           const delBtn = document.createElement("button");
-          delBtn.className = "icon-btn danger";
-          delBtn.textContent = "Hapus";
+          delBtn.className = "w-8 h-8 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors flex items-center justify-center";
+          delBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
           delBtn.addEventListener("click", () => {
             if (confirm("Hapus tugas ini?"))
-              deleteDoc(
-                doc(
-                  db,
-                  "artifacts",
-                  APP_ID,
-                  "users",
-                  auth.currentUser.uid,
-                  "tasks",
-                  task.id,
-                ),
-              );
+              deleteDoc(doc(db, "artifacts", APP_ID, "users", auth.currentUser.uid, "tasks", task.id));
           });
+
           actions.appendChild(editBtn);
           actions.appendChild(delBtn);
-          body.appendChild(actions);
+          el.appendChild(actions);
 
-          top.appendChild(cb);
-          top.appendChild(body);
-          el.appendChild(top);
           list.appendChild(el);
         });
       }
 
       // ---------- Edit modal ----------
       const editOverlay = document.getElementById("edit-overlay");
+      
       function openEditModal(task) {
         editingTaskId = task.id;
         document.getElementById("edit-text").value = task.text || "";
         document.getElementById("edit-notes").value = task.notes || "";
-        document.getElementById("edit-priority").value =
-          task.priority || "important";
+        document.getElementById("edit-priority").value = task.priority || "important";
         document.getElementById("edit-deadline").value = task.deadline
           ? new Date(task.deadline).toISOString().slice(0, 16)
           : "";
-        editOverlay.classList.remove("hidden");
+        editOverlay.classList.remove("hidden-important");
       }
-      document
-        .getElementById("edit-cancel")
-        .addEventListener("click", () => editOverlay.classList.add("hidden"));
-      document
-        .getElementById("edit-save")
-        .addEventListener("click", async () => {
-          const text = document.getElementById("edit-text").value.trim();
-          if (!text) return;
-          const notes = document.getElementById("edit-notes").value.trim();
-          const priority = document.getElementById("edit-priority").value;
-          const deadlineVal = document.getElementById("edit-deadline").value;
-          const deadline = deadlineVal
-            ? new Date(deadlineVal).toISOString()
-            : null;
-          await updateDoc(
-            doc(
-              db,
-              "artifacts",
-              APP_ID,
-              "users",
-              auth.currentUser.uid,
-              "tasks",
-              editingTaskId,
-            ),
-            { text, notes, priority, deadline, notified: false },
-          );
-          editOverlay.classList.add("hidden");
-        });
+      
+      const closeEdit = () => editOverlay.classList.add("hidden-important");
+      document.getElementById("edit-cancel").addEventListener("click", closeEdit);
+      document.getElementById("edit-cancel-x").addEventListener("click", closeEdit);
+      
+      document.getElementById("edit-save").addEventListener("click", async () => {
+        const text = document.getElementById("edit-text").value.trim();
+        if (!text) return;
+        const notes = document.getElementById("edit-notes").value.trim();
+        const priority = document.getElementById("edit-priority").value;
+        const deadlineVal = document.getElementById("edit-deadline").value;
+        const deadline = deadlineVal ? new Date(deadlineVal).toISOString() : null;
+        
+        await updateDoc(
+          doc(db, "artifacts", APP_ID, "users", auth.currentUser.uid, "tasks", editingTaskId),
+          { text, notes, priority, deadline, notified: false }
+        );
+        closeEdit();
+      });
 
       // ---------- ADMIN ----------
       let cachedUsers = [];
@@ -1004,87 +701,79 @@
           collection(db, "artifacts", APP_ID, "users"),
           async (snapshot) => {
             cachedUsers = [];
-            snapshot.forEach((d) =>
-              cachedUsers.push({ id: d.id, ...d.data() }),
-            );
-            document.getElementById("admin-total-users").textContent =
-              cachedUsers.length;
+            snapshot.forEach((d) => cachedUsers.push({ id: d.id, ...d.data() }));
+            
+            document.getElementById("admin-total-users").textContent = cachedUsers.length;
 
             const now = Date.now();
             const activeToday = cachedUsers.filter(
-              (u) =>
-                u.lastLoginAt &&
-                now - u.lastLoginAt.toMillis() < 24 * 60 * 60 * 1000,
+              (u) => u.lastLoginAt && now - u.lastLoginAt.toMillis() < 24 * 60 * 60 * 1000
             ).length;
-            document.getElementById("admin-active-today").textContent =
-              activeToday;
+            document.getElementById("admin-active-today").textContent = activeToday;
 
             let totalTasks = 0;
             for (const u of cachedUsers) {
               const tSnap = await getDocs(tasksCol(u.id));
               totalTasks += tSnap.size;
             }
-            document.getElementById("admin-total-tasks").textContent =
-              totalTasks;
+            document.getElementById("admin-total-tasks").textContent = totalTasks;
 
             renderUserTable();
-          },
+          }
         );
       }
 
-      document
-        .getElementById("admin-search")
-        .addEventListener("input", renderUserTable);
+      document.getElementById("admin-search").addEventListener("input", renderUserTable);
 
       function renderUserTable() {
-        const term = document
-          .getElementById("admin-search")
-          .value.trim()
-          .toLowerCase();
+        const term = document.getElementById("admin-search").value.trim().toLowerCase();
         const tbody = document.getElementById("user-table-body");
         tbody.innerHTML = "";
+        
         cachedUsers
           .filter((u) => !term || (u.email || "").toLowerCase().includes(term))
-          .sort(
-            (a, b) =>
-              (a.createdAt?.toMillis?.() || 0) -
-              (b.createdAt?.toMillis?.() || 0),
-          )
+          // Melengkapi kode JS yang sebelumnya terpotong di prompt Anda:
+          .sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0))
           .forEach((u) => {
             const tr = document.createElement("tr");
-            const created = u.createdAt
-              ? u.createdAt.toDate().toLocaleDateString("id-ID")
-              : "-";
-            const lastLogin = u.lastLoginAt
-              ? u.lastLoginAt.toDate().toLocaleString("id-ID", {
-                  dateStyle: "medium",
-                  timeStyle: "short",
-                })
-              : "-";
-            const statusHtml = u.disabled
-              ? '<span class="status-pill disabled">Nonaktif</span>'
-              : '<span class="status-pill active">Aktif</span>';
-
-            tr.innerHTML = `<td>${u.email}${u.role === "admin" ? ' <span class="badge-role admin">ADMIN</span>' : ""}</td>
-          <td>${created}</td><td>${lastLogin}</td><td>${statusHtml}</td><td></td>`;
-
-            const actionTd = tr.lastElementChild;
-            if (u.role !== "admin") {
-              const toggleBtn = document.createElement("button");
-              toggleBtn.className = "icon-btn" + (u.disabled ? "" : " danger");
-              toggleBtn.textContent = u.disabled ? "Aktifkan" : "Nonaktifkan";
-              toggleBtn.addEventListener("click", async () => {
-                await updateDoc(doc(db, "artifacts", APP_ID, "users", u.id), {
-                  disabled: !u.disabled,
-                });
-              });
-              actionTd.appendChild(toggleBtn);
+            tr.className = "hover:bg-gray-50 transition-colors";
+            
+            // Email col
+            const tdEmail = document.createElement("td");
+            tdEmail.className = "py-3 px-4 font-medium text-gray-800";
+            tdEmail.textContent = u.email || "-";
+            
+            // Registered col
+            const tdReg = document.createElement("td");
+            tdReg.className = "py-3 px-4 text-gray-500 text-sm";
+            tdReg.textContent = u.createdAt ? new Date(u.createdAt.toDate()).toLocaleDateString('id-ID') : "-";
+            
+            // Login col
+            const tdLog = document.createElement("td");
+            tdLog.className = "py-3 px-4 text-gray-500 text-sm";
+            tdLog.textContent = u.lastLoginAt ? new Date(u.lastLoginAt.toDate()).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }) : "-";
+            
+            // Status col
+            const tdStat = document.createElement("td");
+            tdStat.className = "py-3 px-4";
+            const statSpan = document.createElement("span");
+            if(u.disabled) {
+                statSpan.className = "bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full font-semibold";
+                statSpan.textContent = "Dinonaktifkan";
             } else {
-              actionTd.textContent = "—";
+                statSpan.className = "bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-semibold";
+                statSpan.textContent = "Aktif";
             }
+            tdStat.appendChild(statSpan);
+
+            tr.appendChild(tdEmail);
+            tr.appendChild(tdReg);
+            tr.appendChild(tdLog);
+            tr.appendChild(tdStat);
             tbody.appendChild(tr);
           });
       }
     </script>
   </body>
 </html>
+```eof
