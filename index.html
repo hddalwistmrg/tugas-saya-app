@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tugas Saya</title>
+    <style>
+      :root {
+        --ink: #1b1f23;
+        --paper: #faf7f2;
+        --line: #e4ddd0;
+        --accent: #2f6f4e;
+        --accent-dark: #234f38;
+        --danger: #b3432b;
+        --muted: #8a8272;
+        --card: #ffffff;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--paper);
+        color: var(--ink);
+        min-height: 100vh;
+      }
+      .wrap {
+        max-width: 560px;
+        margin: 0 auto;
+        padding: 24px 18px 80px;
+      }
+      header.top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+      }
+      header.top h1 {
+        font-size: 1.3rem;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+      header.top .sub {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin-top: 2px;
+      }
+      button {
+        font-family: inherit;
+        cursor: pointer;
+        border: none;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: white;
+        padding: 11px 18px;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+      .btn-primary:hover {
+        background: var(--accent-dark);
+      }
+      .btn-ghost {
+        background: transparent;
+        color: var(--muted);
+        font-size: 0.85rem;
+        text-decoration: underline;
+        padding: 4px;
+      }
+      .btn-danger {
+        background: transparent;
+        color: var(--danger);
+        font-size: 0.8rem;
+        padding: 4px 8px;
+        border-radius: 6px;
+      }
+      .btn-danger:hover {
+        background: #f5e6e1;
+      }
+
+      /* Auth screen */
+      #auth-screen {
+        max-width: 380px;
+        margin: 60px auto;
+        padding: 0 20px;
+      }
+      #auth-screen h1 {
+        font-size: 1.6rem;
+        margin-bottom: 4px;
+      }
+      #auth-screen p.tag {
+        color: var(--muted);
+        margin-top: 0;
+        margin-bottom: 28px;
+        font-size: 0.95rem;
+      }
+      .field {
+        margin-bottom: 14px;
+      }
+      .field label {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-bottom: 5px;
+      }
+      .field input {
+        width: 100%;
+        padding: 11px 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        font-size: 0.95rem;
+        background: white;
+      }
+      .field input:focus {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
+      #auth-error {
+        color: var(--danger);
+        font-size: 0.85rem;
+        min-height: 18px;
+        margin-bottom: 10px;
+      }
+      #auth-toggle {
+        margin-top: 16px;
+        font-size: 0.88rem;
+        color: var(--muted);
+      }
+
+      /* Task list */
+      .add-box {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 22px;
+      }
+      .add-box input,
+      .add-box input[type="datetime-local"] {
+        width: 100%;
+        padding: 10px 11px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        font-size: 0.92rem;
+        margin-bottom: 9px;
+        background: var(--paper);
+      }
+      .add-row {
+        display: flex;
+        gap: 8px;
+      }
+      .add-row input {
+        flex: 1;
+      }
+
+      .task {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 13px 14px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .task.done {
+        opacity: 0.55;
+      }
+      .task.done .task-text {
+        text-decoration: line-through;
+      }
+      .task input[type="checkbox"] {
+        margin-top: 3px;
+        width: 18px;
+        height: 18px;
+        accent-color: var(--accent);
+        flex-shrink: 0;
+      }
+      .task-body {
+        flex: 1;
+        min-width: 0;
+      }
+      .task-text {
+        font-size: 0.97rem;
+        word-break: break-word;
+      }
+      .task-meta {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+      .task-meta.overdue {
+        color: var(--danger);
+        font-weight: 600;
+      }
+      .empty-state {
+        text-align: center;
+        color: var(--muted);
+        padding: 50px 10px;
+        font-size: 0.9rem;
+      }
+      #app-screen {
+        display: none;
+      }
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ===================== AUTH SCREEN ===================== -->
+    <div id="auth-screen">
+      <h1>Tugas Saya</h1>
+      <p class="tag" id="auth-tagline">
+        Masuk untuk mengelola tugas dan deadline Anda.
+      </p>
+
+      <div id="auth-error"></div>
+
+      <div class="field">
+        <label for="email-input">Email</label>
+        <input
+          type="email"
+          id="email-input"
+          placeholder="nama@email.com"
+          autocomplete="email"
+        />
+      </div>
+      <div class="field">
+        <label for="password-input">Kata sandi</label>
+        <input
+          type="password"
+          id="password-input"
+          placeholder="Minimal 6 karakter"
+          autocomplete="current-password"
+        />
+      </div>
+
+      <button class="btn-primary" id="auth-submit" style="width: 100%">
+        Masuk
+      </button>
+
+      <div id="auth-toggle">
+        Belum punya akun?
+        <button class="btn-ghost" id="auth-switch">Daftar di sini</button>
+      </div>
+    </div>
+
+    <!-- ===================== APP SCREEN ===================== -->
+    <div id="app-screen">
+      <div class="wrap">
+        <header class="top">
+          <div>
+            <h1>Tugas Saya</h1>
+            <div class="sub" id="user-email-label"></div>
+          </div>
+          <button class="btn-ghost" id="logout-btn">Keluar</button>
+        </header>
+
+        <div class="add-box">
+          <input
+            type="text"
+            id="new-task-text"
+            placeholder="Nama tugas, mis. Kerjakan laporan mingguan"
+          />
+          <div class="add-row">
+            <input type="datetime-local" id="new-task-deadline" />
+            <button class="btn-primary" id="add-task-btn">Tambah</button>
+          </div>
+        </div>
+
+        <div id="task-list"></div>
+        <div class="empty-state" id="empty-state">
+          Belum ada tugas. Tambahkan tugas pertama Anda di atas.
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import {
+        getAuth,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        onSnapshot,
+        doc,
+        updateDoc,
+        deleteDoc,
+        query,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      // >>> GANTI BAGIAN INI DENGAN FIREBASE CONFIG ASLI ANDA (lihat Fase 1, Langkah 4) <<<
+      const firebaseConfig = {
+        apiKey: "AIzaSyAa8NPTTgLAzHQkgvrzcFaNi2ZCpQ82kbE",
+        authDomain: "tugas-saya-app.firebaseapp.com",
+        projectId: "tugas-saya-app",
+        storageBucket: "tugas-saya-app.firebasestorage.app",
+        messagingSenderId: "59386857102",
+        appId: "1:59386857102:web:d059f302249ac428b92bdf",
+      };
+      // ID ini bebas Anda ganti, tapi harus SAMA dengan yang dipakai bot.js nanti
+      const APP_ID = "tugas-app-utama";
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      let isRegisterMode = false;
+      let unsubscribeTasks = null;
+
+      // ---------- ELEMENTS ----------
+      const authScreen = document.getElementById("auth-screen");
+      const appScreen = document.getElementById("app-screen");
+      const authError = document.getElementById("auth-error");
+      const emailInput = document.getElementById("email-input");
+      const passwordInput = document.getElementById("password-input");
+      const authSubmit = document.getElementById("auth-submit");
+      const authSwitch = document.getElementById("auth-switch");
+      const authToggle = document.getElementById("auth-toggle");
+      const authTagline = document.getElementById("auth-tagline");
+      const userEmailLabel = document.getElementById("user-email-label");
+      const taskList = document.getElementById("task-list");
+      const emptyState = document.getElementById("empty-state");
+      const newTaskText = document.getElementById("new-task-text");
+      const newTaskDeadline = document.getElementById("new-task-deadline");
+
+      // ---------- AUTH UI ----------
+      authSwitch.addEventListener("click", () => {
+        isRegisterMode = !isRegisterMode;
+        authSubmit.textContent = isRegisterMode ? "Daftar" : "Masuk";
+        authTagline.textContent = isRegisterMode
+          ? "Buat akun baru untuk mulai mengelola tugas Anda."
+          : "Masuk untuk mengelola tugas dan deadline Anda.";
+        authToggle.innerHTML = isRegisterMode
+          ? 'Sudah punya akun? <button class="btn-ghost" id="auth-switch2">Masuk di sini</button>'
+          : 'Belum punya akun? <button class="btn-ghost" id="auth-switch2">Daftar di sini</button>';
+        document
+          .getElementById("auth-switch2")
+          .addEventListener("click", () => authSwitch.click());
+        authError.textContent = "";
+      });
+
+      authSubmit.addEventListener("click", async () => {
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        authError.textContent = "";
+        if (!email || !password) {
+          authError.textContent = "Isi email dan kata sandi terlebih dahulu.";
+          return;
+        }
+        try {
+          if (isRegisterMode) {
+            await createUserWithEmailAndPassword(auth, email, password);
+          } else {
+            await signInWithEmailAndPassword(auth, email, password);
+          }
+        } catch (err) {
+          authError.textContent = translateAuthError(err.code);
+        }
+      });
+
+      function translateAuthError(code) {
+        const map = {
+          "auth/email-already-in-use":
+            "Email ini sudah terdaftar. Coba masuk saja.",
+          "auth/invalid-email": "Format email tidak valid.",
+          "auth/weak-password": "Kata sandi minimal 6 karakter.",
+          "auth/user-not-found": "Akun tidak ditemukan. Coba daftar dulu.",
+          "auth/wrong-password": "Kata sandi salah.",
+          "auth/invalid-credential": "Email atau kata sandi salah.",
+        };
+        return map[code] || "Terjadi kesalahan. Coba lagi.";
+      }
+
+      document
+        .getElementById("logout-btn")
+        .addEventListener("click", () => signOut(auth));
+
+      // ---------- AUTH STATE ----------
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          authScreen.classList.add("hidden");
+          appScreen.style.display = "block";
+          userEmailLabel.textContent = user.email;
+          listenToTasks(user.uid);
+        } else {
+          authScreen.classList.remove("hidden");
+          appScreen.style.display = "none";
+          if (unsubscribeTasks) unsubscribeTasks();
+        }
+      });
+
+      // ---------- TASKS ----------
+      function tasksCollection(uid) {
+        // Struktur ini cocok dengan Firestore Rules & bot.js di panduan
+        return collection(db, "artifacts", APP_ID, "users", uid, "tasks");
+      }
+
+      document
+        .getElementById("add-task-btn")
+        .addEventListener("click", async () => {
+          const user = auth.currentUser;
+          if (!user) return;
+          const text = newTaskText.value.trim();
+          if (!text) return;
+          const deadline = newTaskDeadline.value
+            ? new Date(newTaskDeadline.value).toISOString()
+            : null;
+
+          await addDoc(tasksCollection(user.uid), {
+            text,
+            deadline,
+            completed: false,
+            notified: false,
+            createdAt: serverTimestamp(),
+          });
+          newTaskText.value = "";
+          newTaskDeadline.value = "";
+        });
+
+      function listenToTasks(uid) {
+        if (unsubscribeTasks) unsubscribeTasks();
+        const q = query(tasksCollection(uid));
+        unsubscribeTasks = onSnapshot(
+          q,
+          (snapshot) => {
+            const tasks = [];
+            snapshot.forEach((d) => tasks.push({ id: d.id, ...d.data() }));
+
+            tasks.sort((a, b) => {
+              if (a.completed !== b.completed) return a.completed ? 1 : -1;
+              if (!a.deadline) return 1;
+              if (!b.deadline) return -1;
+              return new Date(a.deadline) - new Date(b.deadline);
+            });
+
+            renderTasks(tasks);
+          },
+          (err) => {
+            console.error(err);
+          },
+        );
+      }
+
+      function renderTasks(tasks) {
+        taskList.innerHTML = "";
+        emptyState.style.display = tasks.length === 0 ? "block" : "none";
+
+        tasks.forEach((task) => {
+          const el = document.createElement("div");
+          el.className = "task" + (task.completed ? " done" : "");
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = !!task.completed;
+          checkbox.addEventListener("change", () => {
+            updateDoc(
+              doc(
+                db,
+                "artifacts",
+                APP_ID,
+                "users",
+                auth.currentUser.uid,
+                "tasks",
+                task.id,
+              ),
+              {
+                completed: checkbox.checked,
+              },
+            );
+          });
+
+          const body = document.createElement("div");
+          body.className = "task-body";
+
+          const textEl = document.createElement("div");
+          textEl.className = "task-text";
+          textEl.textContent = task.text;
+          body.appendChild(textEl);
+
+          if (task.deadline) {
+            const metaEl = document.createElement("div");
+            const d = new Date(task.deadline);
+            const overdue = !task.completed && d < new Date();
+            metaEl.className = "task-meta" + (overdue ? " overdue" : "");
+            metaEl.textContent =
+              (overdue ? "Lewat deadline · " : "Deadline: ") +
+              d.toLocaleString("id-ID", {
+                dateStyle: "medium",
+                timeStyle: "short",
+              });
+            body.appendChild(metaEl);
+          }
+
+          const delBtn = document.createElement("button");
+          delBtn.className = "btn-danger";
+          delBtn.textContent = "Hapus";
+          delBtn.addEventListener("click", () => {
+            deleteDoc(
+              doc(
+                db,
+                "artifacts",
+                APP_ID,
+                "users",
+                auth.currentUser.uid,
+                "tasks",
+                task.id,
+              ),
+            );
+          });
+
+          el.appendChild(checkbox);
+          el.appendChild(body);
+          el.appendChild(delBtn);
+          taskList.appendChild(el);
+        });
+      }
+    </script>
+  </body>
+</html>
